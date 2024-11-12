@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String apiUrl = 'http://192.168.43.157:3000';
+  static const String apiUrl = 'http://192.168.1.15:3000';
    Future<bool> register(String email, String password) async {
     final url = Uri.parse('$apiUrl/register');
     final response = await http.post(
@@ -41,5 +41,26 @@ class AuthService {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
+  }
+
+  Future<bool> resetPassword(String email) async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/reset-password'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+
+    return response.statusCode == 200;
+  }
+
+  Future<bool> sendPasswordResetEmail(String email) async {
+    final url = Uri.parse('$apiUrl/password-reset');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+
+    return response.statusCode == 200;
   }
 }

@@ -27,7 +27,27 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     }
   }
+void _resetPassword() async {
+    final email = _emailController.text.trim();
+    
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Veuillez saisir votre adresse email.')),
+      );
+      return;
+    }
 
+    final success = await _authService.resetPassword(email);
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Un email avec un nouveau mot de passe a été envoyé.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de la réinitialisation du mot de passe.')),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,9 +98,9 @@ class _LoginScreenState extends State<LoginScreen> {
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton(
-                onPressed: () {
-                  // Add password recovery functionality here
-                },
+               onPressed: () {
+            Navigator.pushNamed(context, '/password-reset');
+               },
                 child: Text(
                   'Mot de passe oubliée ?',
                   style: TextStyle(color: Colors.red),
@@ -111,7 +131,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 
               ),
             ),
-            
+             SizedBox(height: 10),
+          
+            Align(
+              alignment: Alignment.center,
+              child: TextButton(
+               onPressed: () {
+            Navigator.pushNamed(context, '/register');
+               },
+                child: Text(
+                  'S\'inscrire',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ),
           ],
         ),
       ),
