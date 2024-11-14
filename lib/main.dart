@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/CentresInteretsScreen.dart';
 import 'package:frontend/PasswordResetScreen.dart';
+import 'package:frontend/pseudo.dart';
+import 'package:frontend/sexe.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 import 'home_screen.dart';
+
 
 void main() {
   runApp(MyApp());
@@ -20,6 +24,10 @@ class MyApp extends StatelessWidget {
         '/register': (context) => RegisterScreen(),
         '/home': (context) => HomeScreen(),
         '/password-reset': (context) => PasswordResetScreen(), 
+        '/pseudo': (context) => PseudoScreen(), 
+        '/centres_interets':(context) => CentresInteretsScreen(), 
+        '/sexe': (context) => SexeScreen(),
+
       },
     );
   }

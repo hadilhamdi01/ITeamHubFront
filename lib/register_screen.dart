@@ -9,21 +9,20 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   final AuthService _authService = AuthService();
 
-  void _register() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-
-    final success = await _authService.register(email, password);
-    if (success) {
-      Navigator.pushReplacementNamed(context, '/login');
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Échec de l\'inscription. Veuillez réessayer.')),
-      );
-    }
-  }
+// RegisterScreen.dart
+void _goToPseudoScreen() {
+  Navigator.pushNamed(
+    context,
+    '/pseudo',
+    arguments: {
+      'email': _emailController.text,
+      'password': _passwordController.text,
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +42,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               decoration: InputDecoration(labelText: 'Mot de passe'),
               obscureText: true,
             ),
+            
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _register,
+              onPressed: _goToPseudoScreen,
               child: Text('S\'inscrire'),
             ),
           ],

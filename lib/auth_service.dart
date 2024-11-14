@@ -3,22 +3,37 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String apiUrl = 'http://192.168.1.15:3000';
-   Future<bool> register(String email, String password) async {
+  static const String apiUrl = 'http://localhost:3000';
+
+Future<bool> registerUser(
+    String email,
+    String password,
+    String pseudo,
+    String sexe,
+    List<String> centresInteretIds,
+  ) async {
+    print('Centres d\'intérêt sélectionnés : $centresInteretIds'); // Debug
     final url = Uri.parse('$apiUrl/register');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
+      body: json.encode({
+        'email': email,
+        'password': password,
+        'pseudo': pseudo,
+        'sexe': sexe,
+        'centresInteret': centresInteretIds,
+      }),
     );
 
-    if (response.statusCode == 200) {
-      return true; // Succès
+    if (response.statusCode == 201) {
+      print('Utilisateur enregistré avec succès');
+      return true;
     } else {
-      return false; // Échec
+      print('Erreur lors de l\'enregistrement: ${response.body}');
+      return false;
     }
   }
-
 
   Future<bool> login(String email, String password) async {
     final response = await http.post(
