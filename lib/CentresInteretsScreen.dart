@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/auth_service.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class CentresInteretsScreen extends StatefulWidget {
   @override
@@ -10,30 +8,17 @@ class CentresInteretsScreen extends StatefulWidget {
 
 class _CentresInteretsScreenState extends State<CentresInteretsScreen> {
   final AuthService _authService = AuthService();
-  List<dynamic> centresInteret = [];
+  // Liste de centres d'intérêt prédéfinis (que l'utilisateur peut sélectionner)
+  List<Map<String, String>> centresInteret = [
+    {'id': '6735b9b0a9cdc27f176a5920', 'nom': 'Musique'},
+    {'id': '2', 'nom': 'Sports'},
+    {'id': '3', 'nom': 'Voyages'},
+    {'id': '4', 'nom': 'Technologie'},
+    {'id': '5', 'nom': 'Lecture'},
+    // Ajoutez ici d'autres centres d'intérêt
+  ];
+
   List<String> selectedCentresInteret = []; // Stocke les IDs sélectionnés
-
-  @override
-  void initState() {
-    super.initState();
-    fetchCentresInteret();
-  }
-
-  // Récupère les centres d'intérêt depuis l'API
-  Future<void> fetchCentresInteret() async {
-  final response = await http.get(Uri.parse('http://localhost:3000/api/centres_interet'));
-
-  if (response.statusCode == 200) {
-    print('Réponse de l\'API (centres d\'intérêts) : ${response.body}'); // Debug
-    setState(() {
-      centresInteret = json.decode(response.body);
-    });
-  } else {
-    print('Erreur lors du chargement des centres d\'intérêt : ${response.statusCode}');
-    throw Exception('Erreur lors du chargement des centres d\'intérêt');
-  }
-}
-
 
   // Inscription avec les centres d'intérêt sélectionnés
   void _register(String email, String password, String pseudo, String sexe) async {
@@ -73,14 +58,14 @@ class _CentresInteretsScreenState extends State<CentresInteretsScreen> {
               child: ListView(
                 children: centresInteret.map((centre) {
                   return CheckboxListTile(
-                    title: Text(centre['nom']),
+                    title: Text(centre['nom']!),
                     value: selectedCentresInteret.contains(centre['id']),
                     onChanged: (bool? value) {
                       setState(() {
                         if (value == true) {
-                          selectedCentresInteret.add(centre['id'].toString()); // Ajoute l'ID
+                          selectedCentresInteret.add(centre['id']!); // Ajoute l'ID
                         } else {
-                          selectedCentresInteret.remove(centre['id'].toString()); // Supprime l'ID
+                          selectedCentresInteret.remove(centre['id']!); // Supprime l'ID
                         }
                       });
                     },
@@ -91,7 +76,7 @@ class _CentresInteretsScreenState extends State<CentresInteretsScreen> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => _register(email, password, pseudo, sexe),
-              child: Text('Envoyer'),
+              child: Text('Terminer l\'inscription'),
             ),
           ],
         ),

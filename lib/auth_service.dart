@@ -3,37 +3,66 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String apiUrl = 'http://localhost:3000';
+  static const String apiUrl = 'http://192.168.1.15:3000';
 
 Future<bool> registerUser(
-    String email,
-    String password,
-    String pseudo,
-    String sexe,
-    List<String> centresInteretIds,
-  ) async {
-    print('Centres d\'intérêt sélectionnés : $centresInteretIds'); // Debug
-    final url = Uri.parse('$apiUrl/register');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'email': email,
-        'password': password,
-        'pseudo': pseudo,
-        'sexe': sexe,
-        'centresInteret': centresInteretIds,
-      }),
-    );
+  String email,
+  String password,
+  String pseudo,
+  String sexe,
+  List<String> centresInteretIds,
+) async {
+  final url = Uri.parse('$apiUrl/register');
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: json.encode({
+      'email': email,
+      'password': password,
+      'pseudo': pseudo,
+      'sexe': sexe,
+      'centresInteret': centresInteretIds,
+    }),
+  );
 
-    if (response.statusCode == 201) {
-      print('Utilisateur enregistré avec succès');
-      return true;
-    } else {
-      print('Erreur lors de l\'enregistrement: ${response.body}');
-      return false;
-    }
+  // Affiche la réponse de l'API pour le debug
+  print('Réponse de l\'API : ${response.body}');
+
+  if (response.statusCode == 201) {
+    print('Utilisateur enregistré avec succès');
+    return true;
+  } else {
+    print('Erreur lors de l\'inscription: ${response.body}');
+    return false;
   }
+}
+
+
+
+Future<List<dynamic>> fetchCentresInteret() async {
+  try {
+    final url = Uri.parse('$apiUrl/api/centres_interet');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      // Parse and return the list of centres d'intérêt
+      final List<dynamic> centresInteret = json.decode(response.body);
+      print('Centres d\'intérêt récupérés avec succès: $centresInteret');
+      return centresInteret;
+    } else {
+      print('Erreur lors de la récupération des centres d\'intérêt: ${response.body}');
+      return [];
+    }
+  } catch (error) {
+    print('Erreur réseau : $error');
+    return [];
+  }
+}
+
+
+
+
+
 
   Future<bool> login(String email, String password) async {
     final response = await http.post(
