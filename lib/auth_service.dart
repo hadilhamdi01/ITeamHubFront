@@ -10,6 +10,7 @@ Future<bool> registerUser(
   String password,
   String pseudo,
   String sexe,
+  String avatar,
   List<String> centresInteretIds,
 ) async {
   final url = Uri.parse('$apiUrl/register');
@@ -21,6 +22,7 @@ Future<bool> registerUser(
       'password': password,
       'pseudo': pseudo,
       'sexe': sexe,
+      'avatar': avatar,
       'centresInteret': centresInteretIds,
     }),
   );

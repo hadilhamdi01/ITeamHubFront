@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/AvatarScreen.dart';
 import 'package:frontend/CentresInteretsScreen.dart';
 import 'package:frontend/PasswordResetScreen.dart';
 import 'package:frontend/pseudo.dart';
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         '/pseudo': (context) => PseudoScreen(), 
         '/centres_interets':(context) => CentresInteretsScreen(), 
         '/sexe': (context) => SexeScreen(),
+        '/avatar': (context) => AvatarScreen(),
 
       },
     );

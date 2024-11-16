@@ -64,6 +64,7 @@ flutter:
   assets:
     
      - assets/reddit_icon.png
+     - assets/avatar1.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
