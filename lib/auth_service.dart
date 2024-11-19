@@ -63,41 +63,63 @@ Future<List<dynamic>> fetchCentresInteret() async {
 
 
 
-
-
-
-  Future<bool> login(String email, String password) async {
+ Future<bool> login(String email, String password) async {
     final response = await http.post(
       Uri.parse('$apiUrl/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
+
     if (response.statusCode == 200) {
       final token = jsonDecode(response.body)['token'];
+
+      // Décoder le token pour récupérer les rôles
+      final decodedToken = _decodeJwt(token);
+      final roles = decodedToken['roles'];
+
+      // Sauvegarder le token et les rôles dans SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', token);
+      await prefs.setStringList('roles', List<String>.from(roles));
+
       return true;
     } else {
       return false;
     }
   }
+Map<String, dynamic> _decodeJwt(String token) {
+    final parts = token.split('.');
+    final payload = base64Url.decode(base64Url.normalize(parts[1]));
+    return jsonDecode(utf8.decode(payload));
+  }
+
+
+
+
+
+
+
+
+
+
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
   }
 
-  Future<bool> resetPassword(String email) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/reset-password'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email}),
-    );
 
-    return response.statusCode == 200;
-  }
+  
+Future<bool> resetPassword(String email) async {
+  final response = await http.post(
+    Uri.parse('$apiUrl/forgot-password'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'email': email}),
+  );
+
+  return response.statusCode == 200;
+}
+
 
   Future<bool> sendPasswordResetEmail(String email) async {
     final url = Uri.parse('$apiUrl/password-reset');

@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
   http: ^0.13.3
   shared_preferences: ^2.0.6
+  smooth_page_indicator: ^1.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -65,6 +66,11 @@ flutter:
     
      - assets/reddit_icon.png
      - assets/avatar1.jpg
+     - assets/avatar2.jpg
+     - assets/avatar3.jpg
+     - assets/avatar4.jpg
+     - assets/avatar5.jpg
+     - assets/avatar6.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

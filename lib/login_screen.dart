@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,24 +13,33 @@ class _LoginScreenState extends State<LoginScreen> {
   final AuthService _authService = AuthService();
   Color _buttonColor = const Color.fromARGB(139, 158, 158, 158); // Couleur initiale
 
+ void _login() async {
+  final email = _emailController.text.trim();
+  final password = _passwordController.text.trim();
 
-  void _login() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
+  final success = await _authService.login(email, password);
 
-    final success = await _authService.login(email, password);
-      
-    if (success) {
-      Navigator.pushReplacementNamed(context, '/home');
+  if (success) {
+    // Récupérer les rôles de l'utilisateur depuis SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final roles = prefs.getStringList('roles') ?? [];
+
+    // Vérifier les rôles et rediriger vers la bonne page
+    if (roles.contains('admin')) {
+      Navigator.pushReplacementNamed(context, '/admin');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Échec de la connexion. Veuillez réessayer.')),
-      );
+      Navigator.pushReplacementNamed(context, '/home');
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Échec de la connexion. Veuillez réessayer.')),
+    );
   }
-void _resetPassword() async {
+}
+
+  void _resetPassword() async {
     final email = _emailController.text.trim();
-    
+
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Veuillez saisir votre adresse email.')),
@@ -48,78 +58,103 @@ void _resetPassword() async {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      backgroundColor: const Color.fromARGB(255, 16, 16, 16),
+       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 16, 16, 16),
+      
+        actions: [
+          TextButton(
+            onPressed: () {
+                  Navigator.pushNamed(context, '/register');
+                },
+            child: Text("S\'inscrire", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+      body:SingleChildScrollView(
+  child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          
           children: [
-            // Reddit Icon
-            CircleAvatar(
-              radius: 40,
-              backgroundImage: AssetImage('assets/reddit_icon.png'), 
+            // Image avec bords arrondis (sans cercle)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10), // Coins arrondis
+              child: Image.asset(
+                'assets/reddit_icon.png', // Chemin de l'image
+                height: 120,
+                width: 120,
+                fit: BoxFit.cover,
+              ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 30),
             // "Saisis tes informations de connexion" Text
             Text(
-              'Saisis tes informations de connexion',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              'Connexion',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 30),
             // Email Input Field
             TextField(
               controller: _emailController,
+              style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: 'Saisir email ou pseudo',
                 prefixIcon: Icon(Icons.person),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30.0),
+                  borderSide: BorderSide(color: Colors.white),
                 ),
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 30),
             // Password Input Field
             TextField(
               controller: _passwordController,
+              style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: 'Saisir mot de passe',
                 prefixIcon: Icon(Icons.lock),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30.0),
+                  borderSide: BorderSide(color: Colors.white),
                 ),
               ),
               obscureText: true,
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 20),
             // "Mot de passe oubliée?" link
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton(
-               onPressed: () {
-            Navigator.pushNamed(context, '/password-reset');
-               },
+                onPressed: () {
+                  Navigator.pushNamed(context, '/password-reset');
+                },
                 child: Text(
                   'Mot de passe oubliée ?',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 30),
             // Agreement Text
             Text(
-              "En continuant, tu acceptes notre Contrat d'utilisation et confirmes que tu comprends notre Politiques de confidentialité.",
-              style: TextStyle(fontSize: 12),
+              "En continuant, tu acceptes notre Contrat d'utilisation et confirmes que tu comprends notre Politique de confidentialité.",
+              style: TextStyle(fontSize: 12, color: const Color.fromARGB(255, 81, 80, 80)),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 30),
             // Continue Button
             ElevatedButton(
               onPressed: _login,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _buttonColor, // Adjust color as needed
+                backgroundColor: const Color.fromARGB(255, 190, 56, 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0),
                 ),
@@ -127,26 +162,13 @@ void _resetPassword() async {
               ),
               child: Text(
                 'Se connecter',
-                style: TextStyle(fontSize: 16, color: Colors.black),
-                
+                style: TextStyle(fontSize: 16, color: Colors.white),
               ),
             ),
-             SizedBox(height: 10),
-          
-            Align(
-              alignment: Alignment.center,
-              child: TextButton(
-               onPressed: () {
-            Navigator.pushNamed(context, '/register');
-               },
-                child: Text(
-                  'S\'inscrire',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ),
+            
           ],
         ),
+      ),
       ),
     );
   }

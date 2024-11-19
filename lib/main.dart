@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/AvatarScreen.dart';
 import 'package:frontend/CentresInteretsScreen.dart';
 import 'package:frontend/PasswordResetScreen.dart';
+import 'package:frontend/admin_screen.dart';
 import 'package:frontend/pseudo.dart';
 import 'package:frontend/sexe.dart';
 import 'login_screen.dart';
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
         '/home': (context) => HomeScreen(),
+        '/admin': (context) => AdminScreen(),
         '/password-reset': (context) => PasswordResetScreen(), 
         '/pseudo': (context) => PseudoScreen(), 
         '/centres_interets':(context) => CentresInteretsScreen(), 
