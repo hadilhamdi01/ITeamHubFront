@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.13.3
+  http: ^0.14.0 
   shared_preferences: ^2.0.6
   smooth_page_indicator: ^1.0.0
 

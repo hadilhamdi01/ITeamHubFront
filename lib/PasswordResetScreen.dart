@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'auth_service.dart';
+
+import 'package:http/http.dart' as http;
 
 class PasswordResetScreen extends StatefulWidget {
   @override
@@ -8,22 +12,45 @@ class PasswordResetScreen extends StatefulWidget {
 
 class _PasswordResetScreenState extends State<PasswordResetScreen> {
   final TextEditingController _emailController = TextEditingController();
-  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
-  void _sendPasswordResetRequest() async {
+  void _sendResetLink() async {
     final email = _emailController.text.trim();
-
-    final success = await _authService.sendPasswordResetEmail(email);
-
-    if (success) {
+    if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Un email de réinitialisation a été envoyé.')),
+        SnackBar(content: Text('Veuillez entrer un email valide.')),
       );
-      Navigator.pop(context); // Retour à l'écran de connexion
-    } else {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.0.114:3000/reset-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Un email a été envoyé.')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur : ${jsonDecode(response.body)['message']}')),
+        );
+      }
+    } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Échec de l'envoi de l'email de réinitialisation.")),
+        SnackBar(content: Text('Erreur : $error')),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -53,14 +80,10 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _sendPasswordResetRequest,
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 80, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-              ),
-              child: Text('Envoyer'),
+             onPressed: _isLoading ? null : _sendResetLink,
+              child: _isLoading
+                  ? CircularProgressIndicator()
+                  : Text('Envoyer le lien'),
             ),
           ],
         ),

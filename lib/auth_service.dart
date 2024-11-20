@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String apiUrl = 'http://192.168.1.15:3000';
+  static const String apiUrl = 'http://10.0.0.114:3000';
 
 Future<bool> registerUser(
   String email,
@@ -63,39 +63,7 @@ Future<List<dynamic>> fetchCentresInteret() async {
 
 
 
- Future<bool> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
-    );
-
-    if (response.statusCode == 200) {
-      final token = jsonDecode(response.body)['token'];
-
-      // Décoder le token pour récupérer les rôles
-      final decodedToken = _decodeJwt(token);
-      final roles = decodedToken['roles'];
-
-      // Sauvegarder le token et les rôles dans SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', token);
-      await prefs.setStringList('roles', List<String>.from(roles));
-
-      return true;
-    } else {
-      return false;
-    }
-  }
-Map<String, dynamic> _decodeJwt(String token) {
-    final parts = token.split('.');
-    final payload = base64Url.decode(base64Url.normalize(parts[1]));
-    return jsonDecode(utf8.decode(payload));
-  }
-
-
-
-
+ 
 
 
 
