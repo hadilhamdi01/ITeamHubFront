@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String apiUrl = 'http://10.0.0.114:3000';
+ static const String apiUrl = 'http://192.168.1.15:3000';
+
 
 Future<bool> registerUser(
   String email,

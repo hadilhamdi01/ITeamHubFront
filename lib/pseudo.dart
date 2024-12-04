@@ -105,7 +105,7 @@ final TextEditingController _pseudoController = TextEditingController();
                   borderSide: BorderSide(color: Colors.white),
                 ),
               ),
-              obscureText: true,
+              obscureText: false,
             
   onChanged: (value) {
     setState(() {
@@ -116,7 +116,7 @@ final TextEditingController _pseudoController = TextEditingController();
       } else if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
         _errorText = 'Utilisez uniquement lettres, chiffres ou underscores (_).';
       } else {
-        _errorText = null; // Pas d'erreur
+        _errorText = null; 
       }
     });
   },

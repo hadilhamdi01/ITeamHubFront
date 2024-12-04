@@ -14,44 +14,45 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
   final TextEditingController _emailController = TextEditingController();
   bool _isLoading = false;
 
-  void _sendResetLink() async {
-    final email = _emailController.text.trim();
+ Future<void> _resetPassword() async {
+    final email = _emailController.text;
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Veuillez entrer un email valide.')),
+        SnackBar(content: Text('Veuillez entrer votre email')),
       );
       return;
     }
 
     setState(() {
-      _isLoading = true;
+      _isLoading = true; // Afficher l'indicateur de chargement
     });
+try {
+  final response = await http.post(
+    Uri.parse('http://10.0.0.114:3000/reset-password'),  // Remplacez par l'IP de votre serveur si nécessaire
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'email': email}),
+  );
 
-    try {
-      final response = await http.post(
-        Uri.parse('http://10.0.0.114:3000/reset-password'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email}),
-      );
+  if (response.statusCode == 200) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Un email de réinitialisation a été envoyé.')),
+    );
+  } else {
+    final errorMessage = jsonDecode(response.body)['message'];
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Erreur: $errorMessage')),
+    );
+  }
+} catch (error) {
+  setState(() {
+    _isLoading = false;
+  });
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('Erreur : ${error.toString()}')),
+  );
+}
 
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Un email a été envoyé.')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur : ${jsonDecode(response.body)['message']}')),
-        );
-      }
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur : $error')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    
   }
 
   @override
@@ -77,14 +78,16 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                   borderRadius: BorderRadius.circular(30.0),
                 ),
               ),
+               keyboardType: TextInputType.emailAddress,
+
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-             onPressed: _isLoading ? null : _sendResetLink,
-              child: _isLoading
-                  ? CircularProgressIndicator()
-                  : Text('Envoyer le lien'),
-            ),
+             SizedBox(height: 16.0),
+            _isLoading
+                ? CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: _resetPassword,
+                    child: Text('Réinitialiser le mot de passe'),
+                  ),
           ],
         ),
       ),
