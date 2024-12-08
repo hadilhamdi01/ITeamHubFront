@@ -33,6 +33,7 @@ dependencies:
   http: ^0.13.3
   shared_preferences: ^2.0.6
   smooth_page_indicator: ^1.0.0
+  image_picker: ^0.8.5+3
 
 
   # The following adds the Cupertino Icons font to your application.

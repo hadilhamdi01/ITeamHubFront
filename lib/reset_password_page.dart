@@ -50,35 +50,65 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Réinitialiser le mot de passe')),
+      backgroundColor: const Color.fromARGB(255, 16, 16, 16),
+
+      appBar: AppBar(  backgroundColor: const Color.fromARGB(255, 16, 16, 16)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Entrez votre adresse e-mail pour réinitialiser votre mot de passe.',
-              style: TextStyle(fontSize: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10), // Coins arrondis
+              child: Image.asset(
+                'assets/reddit_icon.png', // Chemin de l'image
+                height: 120,
+                width: 120,
+                fit: BoxFit.cover,
+              ),
             ),
-            SizedBox(height: 20),
+              SizedBox(height: 20),
+            // "Saisis tes informations de connexion" Text
+            Text(
+              'Réinitialiser ton mot de passe',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+             SizedBox(height: 20),
+            Text(
+              'Entrez votre adresse e-mail valide..',
+              style: TextStyle(fontSize: 12, color: const Color.fromARGB(255, 81, 80, 80)),
+            ),
+            SizedBox(height: 30),
             TextField(
               controller: _emailController,
+               style: TextStyle(color: Colors.white),
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                labelText: 'Adresse e-mail',
-                border: OutlineInputBorder(),
+               
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  borderSide: BorderSide(color: Colors.white),
+                ),
               ),
             ),
-            SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _sendResetPasswordRequest,
-                child: _isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
-                    : Text('Envoyer'),
-              ),
-            ),
+            SizedBox(height: 30),
+           SizedBox(
+            width: 200, // Largeur spécifique du bouton
+  height: 50,
+  child: ElevatedButton(
+    onPressed: _isLoading ? null : _sendResetPasswordRequest,
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color.fromARGB(255, 190, 56, 16), // Couleur de fond du bouton
+      foregroundColor: Colors.white,  // Couleur du texte
+      padding: EdgeInsets.symmetric(vertical: 16.0), // Taille du bouton
+    ),
+    child: _isLoading
+        ? CircularProgressIndicator(color: Colors.white)
+        : Text('Envoyer'),
+  ),
+),
+
           ],
         ),
       ),

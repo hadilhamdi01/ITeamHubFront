@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/AvatarScreen.dart';
 import 'package:frontend/CentresInteretsScreen.dart';
-import 'package:frontend/PasswordResetScreen.dart';
+import 'package:frontend/SelectCommunityPage.dart';
+import 'package:frontend/addPost.dart';
 import 'package:frontend/admin_screen.dart';
 import 'package:frontend/pseudo.dart';
 import 'package:frontend/reset_password_page.dart';
@@ -9,6 +10,7 @@ import 'package:frontend/sexe.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 import 'home_screen.dart';
+
 
 
 void main() {
@@ -41,6 +43,9 @@ class MyApp extends StatelessWidget {
         '/password-reset': (context) => ResetPasswordPage(), 
         '/pseudo': (context) => PseudoScreen(), 
         '/centres_interets':(context) => CentresInteretsScreen(), 
+        '/select':(context) => SelectCommunityPage(content: 'required String content, XFile? mediaFile',), 
+        
+      
         '/sexe': (context) => SexeScreen(),
         '/avatar': (context) => AvatarScreen(),
 

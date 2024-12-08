@@ -100,4 +100,30 @@ Future<bool> resetPassword(String email) async {
 
     return response.statusCode == 200;
   }
+
+
+
+  static Future<List<dynamic>> getCommunities() async {
+    final response = await http.get(Uri.parse('$apiUrl/communities'));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Erreur lors de la récupération des communautés.');
+    }
+  }
+  static Future<void> addPost(String content, String communityId, String? filePath) async {
+    var request = http.MultipartRequest('POST', Uri.parse('$apiUrl/posts'));
+    request.fields['content'] = content;
+    request.fields['communityId'] = communityId;
+
+    if (filePath != null) {
+      request.files.add(await http.MultipartFile.fromPath('media', filePath));
+    }
+
+    final response = await request.send();
+    if (response.statusCode != 201) {
+      throw Exception('Erreur lors de l\'ajout du post.');
+    }
+  }
+
 }

@@ -28,7 +28,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
     });
 try {
   final response = await http.post(
-    Uri.parse('http://10.0.0.114:3000/reset-password'),  // Remplacez par l'IP de votre serveur si nécessaire
+    Uri.parse('http://192.168.1.15:3000/reset-password'),  // Remplacez par l'IP de votre serveur si nécessaire
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({'email': email}),
   );
