@@ -7,6 +7,7 @@ import 'package:frontend/admin_screen.dart';
 import 'package:frontend/pseudo.dart';
 import 'package:frontend/reset_password_page.dart';
 import 'package:frontend/sexe.dart';
+import 'package:frontend/user_profile.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 import 'home_screen.dart';
@@ -35,13 +36,16 @@ class MyApp extends StatelessWidget {
         ),
       ),
       initialRoute: '/login',
+      
+
       routes: {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
-        '/home': (context) => HomePage(),
+        //'/home': (context) => HomePage(token: '',),
         '/admin': (context) => AdminScreen(),
         '/password-reset': (context) => ResetPasswordPage(), 
         '/pseudo': (context) => PseudoScreen(), 
+        //'/profile': (context) => UserProfilePage(userData: userData), 
         '/centres_interets':(context) => CentresInteretsScreen(), 
         '/select':(context) => SelectCommunityPage(content: 'required String content, XFile? mediaFile',), 
         

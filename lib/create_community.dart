@@ -24,7 +24,7 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
 
   Future<void> createCommunity(String name, String theme) async {
     final url = Uri.parse(
-        'http://192.168.1.15:3000/api/community'); // Replace with your backend URL
+        'http://192.168.149.50:3000/api/community'); // Replace with your backend URL
     try {
       final response = await http.post(
         url,

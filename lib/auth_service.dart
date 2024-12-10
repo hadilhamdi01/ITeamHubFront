@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
- static const String apiUrl = 'http://192.168.1.15:3000';
+ static const String apiUrl = 'http://192.168.149.50:3000';
+ static const String _meUrl = '$apiUrl/auth/me';
+ final _storage = FlutterSecureStorage();
 
 
 Future<bool> registerUser(
@@ -60,6 +64,9 @@ Future<List<dynamic>> fetchCentresInteret() async {
     print('Erreur réseau : $error');
     return [];
   }
+
+
+  
 }
 
 
@@ -127,3 +134,4 @@ Future<bool> resetPassword(String email) async {
   }
 
 }
+
