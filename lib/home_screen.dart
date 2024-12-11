@@ -80,7 +80,19 @@ class _HomePageState extends State<HomePage> {
            fontWeight: FontWeight.bold,  // Rendre le texte en gras
     fontSize: 20,),
         ),
+        
         actions: [
+             GestureDetector(
+              onTap: () {
+                // Action à définir pour la loupe (recherche)
+                print("Recherche...");
+              },
+              child: Icon(
+                Icons.search, // Icône de recherche
+                color: Colors.white,
+                size: 30,
+              ),
+            ),
           if (widget.userData.isNotEmpty && widget.userData['avatar'] != null)
             GestureDetector(
               onTap: () {
@@ -88,6 +100,7 @@ class _HomePageState extends State<HomePage> {
               },
               child: Padding(
                 padding: const EdgeInsets.only(right: 8.0),
+
                 child: ClipOval(
                   child: Image.asset(
                     widget.userData['avatar'], // Utilisation de AssetImage pour l'avatar
@@ -205,6 +218,7 @@ class _HomePageState extends State<HomePage> {
             Container(
               color: const Color.fromARGB(255, 16, 16, 16),
               padding: const EdgeInsets.all(16.0),
+              
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -219,11 +233,53 @@ class _HomePageState extends State<HomePage> {
                           Icons.person,
                           size: 40,
                           color: Colors.white,
-                        ),
+                      )
                 ],
+                
               ),
+              
             ),
-            Divider(color: Colors.grey[700]),
+            const SizedBox(height: 4),
+
+          Container(
+  alignment: Alignment.center, // Centre le texte horizontalement et verticalement
+  child: Text(
+    widget.userData['pseudo'] ?? 'Utilisateur', 
+    style: const TextStyle(fontWeight: FontWeight.bold),
+  ),
+),
+
+
+const SizedBox(height: 9),
+Container(
+  alignment: Alignment.center, // Centrer le contenu dans le container
+  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12), // Espacement intérieur
+  decoration: BoxDecoration(
+    border: Border.all(color: const Color.fromARGB(197, 45, 223, 72), width: 2),
+    borderRadius: BorderRadius.circular(18), // Coins arrondis
+  ),
+  child: Row(
+    mainAxisSize: MainAxisSize.min, // Adapter la taille au contenu
+    children: [
+      Icon(
+        Icons.circle, // Icône de point
+        color: const Color.fromARGB(197, 45, 223, 72), // Couleur verte
+        size: 12, // Taille du point
+      ),
+      const SizedBox(width: 8), // Espacement entre le point et le texte
+      Text(
+        'Statut : En ligne',
+        style: TextStyle(
+          color: const Color.fromARGB(197, 45, 223, 72), // Couleur du texte
+          fontSize: 14,
+        ),
+      ),
+    ],
+  ),
+),
+
+const SizedBox(height: 28),
+            Divider(color: const Color.fromARGB(135, 219, 217, 217)),
             Expanded(
               child: ListView(
                 children: [
@@ -239,13 +295,13 @@ class _HomePageState extends State<HomePage> {
                       );
                     },
                   ),
-                  Divider(color: Colors.grey[700]),
+                  //Divider(color: Colors.grey[700]),
                   ListTile(
                     leading: Icon(Icons.settings, color: Colors.white),
                     title: Text('Paramètres', style: TextStyle(color: Colors.white)),
                     onTap: () {},
                   ),
-                  Divider(color: Colors.grey[700]),
+                  //Divider(color: Colors.grey[700]),
                   ListTile(
                     leading: Icon(Icons.logout, color: Colors.red),
                     title: Text('Se Déconnecter', style: TextStyle(color: Colors.red)),
@@ -301,21 +357,4 @@ class UserProfilePage extends StatelessWidget {
   }
 }
 
-class AddPostPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 16, 16, 16),
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 16, 16, 16),
-        title: Text('Ajouter un Post'),
-      ),
-      body: Center(
-        child: Text(
-          'Page pour ajouter un post',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  }
-}
+
