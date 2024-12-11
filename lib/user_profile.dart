@@ -19,7 +19,7 @@ class UserProfilePage extends StatelessWidget {
           children: [
             Text('Email: ${userData['email']}'),
             Text('Pseudo: ${userData['pseudo']}'),
-            Text('Role: ${userData['role'].join(', ')}'),
+            Text('Role: ${userData['role']}'),
             Text('Sexe: ${userData['sexe']}'),
             userData['avatar'] != null
                 ? Image.network(userData['avatar'])

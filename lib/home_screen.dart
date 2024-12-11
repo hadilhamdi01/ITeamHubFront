@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/addPost.dart';
+import 'package:frontend/user_profile.dart';
 
 void main() {
   runApp(MyApp());
@@ -98,7 +99,9 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 _scaffoldKey.currentState?.openEndDrawer(); // Open the Drawer when the avatar is tapped
               },
-              child: Padding(
+              child: Stack(
+                children: [
+               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
 
                 child: ClipOval(
@@ -110,9 +113,25 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+               Positioned(
+                    bottom: 3,
+                    right: 15,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(197, 45, 223, 72),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
         ],
       ),
+            
+            
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
@@ -333,28 +352,4 @@ class HomeContent extends StatelessWidget {
     );
   }
 }
-
-class UserProfilePage extends StatelessWidget {
-  final Map<String, dynamic> userData;
-
-  UserProfilePage({required this.userData});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 16, 16, 16),
-      appBar: AppBar(
-        title: Text('Profil de ${userData['pseudo']}'),
-        backgroundColor: const Color.fromARGB(255, 16, 16, 16),
-      ),
-      body: Center(
-        child: Text(
-          'Détails du profil',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  }
-}
-
 
