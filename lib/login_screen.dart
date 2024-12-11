@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:frontend/auth_service.dart';
 import 'package:frontend/home_screen.dart';
-import 'package:frontend/user_profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -12,39 +9,53 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String errorMessage = '';
   String token = '';
-    bool _isLoading = false;
+  bool _isLoading = false;
 
-Future<void> login() async {
+  Future<void> login() async {
     final String email = _emailController.text;
     final String password = _passwordController.text;
 
-    // Requête pour se connecter
-    final response = await http.post(
-      Uri.parse('http://192.168.149.50:3000/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'email': email, 'password': password}),
-    );
+    setState(() {
+      _isLoading = true;
+    });
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+    try {
+      // Requête pour se connecter
+      final response = await http.post(
+        Uri.parse('http://192.168.149.50:3000/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'email': email, 'password': password}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          token = data['token'];
+        });
+        // Récupérer les données utilisateur
+        await fetchUserData();
+      } else {
+        setState(() {
+          errorMessage = 'Email ou mot de passe incorrect';
+        });
+      }
+    } catch (e) {
       setState(() {
-        token = data['token'];
+        errorMessage = 'Erreur de connexion. Veuillez réessayer.';
       });
-      // Sauvegarder le token dans un stockage sécurisé ou l'usage temporaire
-      fetchUserData();
-    } else {
+    } finally {
       setState(() {
-        errorMessage = 'Email ou mot de passe incorrect';
+        _isLoading = false;
       });
     }
   }
 
   Future<void> fetchUserData() async {
+  try {
     final response = await http.get(
       Uri.parse('http://192.168.149.50:3000/auth/me'),
       headers: {'Authorization': 'Bearer $token'},
@@ -52,21 +63,43 @@ Future<void> login() async {
 
     if (response.statusCode == 200) {
       final userData = json.decode(response.body);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomePage(userData: userData),
-        ),
-      );
+      print(userData); // Vérifier la structure des données utilisateur
+
+      if (userData['role'] != null) {
+        final String userRole = userData['role'];  // Assurez-vous que la clé du rôle est bien correcte
+
+        if (userRole == 'admin') {
+          Navigator.pushReplacementNamed(context, '/admin');
+        } else if (userRole == 'user') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(userData: userData),
+            ),
+          );
+        } else {
+          setState(() {
+            errorMessage = 'Rôle utilisateur inconnu.';
+          });
+        }
+      } else {
+        setState(() {
+          errorMessage = 'Rôle utilisateur introuvable.';
+        });
+      }
     } else {
       setState(() {
-        errorMessage = 'Impossible de récupérer les informations de l\'utilisateur';
+        errorMessage = 'Impossible de récupérer les informations utilisateur.';
       });
     }
+  } catch (e) {
+    setState(() {
+      errorMessage = 'Erreur lors de la récupération des données utilisateur.';
+    });
   }
+}
 
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +111,10 @@ Future<void> login() async {
             onPressed: () {
               Navigator.pushNamed(context, '/register');
             },
-            child: Text("S'inscrire", style: TextStyle(color: Colors.white)),
+            child: Text(
+              "S'inscrire",
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -100,7 +136,10 @@ Future<void> login() async {
               SizedBox(height: 30),
               Text(
                 'Connexion',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 30),
@@ -147,7 +186,7 @@ Future<void> login() async {
               ),
               SizedBox(height: 30),
               ElevatedButton(
-                onPressed: login,
+                onPressed: _isLoading ? null : login,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 190, 56, 16),
                   shape: RoundedRectangleBorder(
@@ -155,12 +194,19 @@ Future<void> login() async {
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 80, vertical: 15),
                 ),
-                child: 
-                     Text(
+                child: _isLoading
+                    ? CircularProgressIndicator(color: Colors.white)
+                    : Text(
                         'Se connecter',
                         style: TextStyle(fontSize: 16, color: Colors.white),
                       ),
               ),
+              SizedBox(height: 20),
+              if (errorMessage.isNotEmpty)
+                Text(
+                  errorMessage,
+                  style: TextStyle(color: Colors.red),
+                ),
             ],
           ),
         ),

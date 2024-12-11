@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
             builder: (context) => UserProfilePage(userData: widget.userData),
           ),
         );
-      } else {
+      } else {  
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Les données utilisateur ne sont pas disponibles.')),
         );
