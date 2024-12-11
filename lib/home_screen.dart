@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
             builder: (context) => UserProfilePage(userData: widget.userData),
           ),
         );
-      } else {  
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Les données utilisateur ne sont pas disponibles.')),
         );
@@ -70,33 +70,35 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 16, 16, 16),
       key: _scaffoldKey, // Associate the key with the Scaffold
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 16, 16, 16),
         title: Text(
-          'Accueil',
-          style: TextStyle(color: Colors.white),
+          'iTeamHub',
+          style: TextStyle(color: const Color.fromARGB(255, 190, 56, 16),
+           fontWeight: FontWeight.bold,  // Rendre le texte en gras
+    fontSize: 20,),
         ),
-       actions: [
-  if (widget.userData.isNotEmpty && widget.userData['avatar'] != null)
-    GestureDetector(
-      onTap: () {
-        _scaffoldKey.currentState?.openEndDrawer(); // Open the Drawer when the avatar is tapped
-      },
-      child: Padding(
-        padding: const EdgeInsets.only(right: 8.0),
-        child: ClipOval(
-          child: Image.asset(
-            widget.userData['avatar'], // Utilisation de AssetImage pour l'avatar
-            width: 70, // Largeur de l'avatar
-            height: 70, // Hauteur de l'avatar
-            fit: BoxFit.cover, // L'image s'ajuste bien dans le cercle
-          ),
-        ),
-      ),
-    ),
-],
-
+        actions: [
+          if (widget.userData.isNotEmpty && widget.userData['avatar'] != null)
+            GestureDetector(
+              onTap: () {
+                _scaffoldKey.currentState?.openEndDrawer(); // Open the Drawer when the avatar is tapped
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: ClipOval(
+                  child: Image.asset(
+                    widget.userData['avatar'], // Utilisation de AssetImage pour l'avatar
+                    width: 70, // Largeur de l'avatar
+                    height: 70, // Hauteur de l'avatar
+                    fit: BoxFit.contain, // L'image s'ajuste bien dans le cercle
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -126,52 +128,134 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      endDrawer: Drawer( // Using endDrawer to open it on the right
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            UserAccountsDrawerHeader(
-              accountName: Text(widget.userData['pseudo'] ?? 'Utilisateur'),
-              accountEmail: Text(widget.userData['email'] ?? 'Email'),
-              currentAccountPicture: widget.userData['avatar'] != null
-                  ? CircleAvatar(
-                      backgroundImage: AssetImage(widget.userData['avatar']),
-                    )
-                  : CircleAvatar(
-                      child: Icon(Icons.person),
-                    ),
-            ),
-            ListTile(
-              title: Text('Mon Profil'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UserProfilePage(userData: widget.userData),
+      // Drawer à gauche
+      drawer: Drawer(
+        backgroundColor: const Color.fromARGB(255, 16, 16, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              color: const Color.fromARGB(255, 16, 16, 16),
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  widget.userData['avatar'] != null
+                      ? Image.asset(
+                          widget.userData['avatar'],
+                          fit: BoxFit.contain,
+                          width: 70,  
+                          height: 70,
+                        )
+                      : Icon(
+                          Icons.person,
+                          size: 40,
+                          color: Colors.white,
+                        ),
+                  SizedBox(width: 10),
+                  Text(
+                    widget.userData['pseudo'] ?? 'Utilisateur',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
-                );
-              },
+                ],
+              ),
             ),
-            ListTile(
-              title: Text('Paramètres'),
-              onTap: () {
-                // Add functionality for Settings here
-              },
+            Divider(color: Colors.grey[700]),
+            Expanded(
+              child: ListView(
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.person, color: Colors.white),
+                    title: Text('Mon Profil', style: TextStyle(color: Colors.white)),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserProfilePage(userData: widget.userData),
+                        ),
+                      );
+                    },
+                  ),
+                  Divider(color: Colors.grey[700]),
+                  ListTile(
+                    leading: Icon(Icons.settings, color: Colors.white),
+                    title: Text('Paramètres', style: TextStyle(color: Colors.white)),
+                    onTap: () {},
+                  ),
+                  Divider(color: Colors.grey[700]),
+                  ListTile(
+                    leading: Icon(Icons.logout, color: Colors.red),
+                    title: Text('Se Déconnecter', style: TextStyle(color: Colors.red)),
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
+                  ),
+                ],
+              ),
             ),
-            ListTile(
-              title: Text('Se Déconnecter'),
-              onTap: () {
-                // Add logout functionality here
-              },
-              
+          ],
+        ),
+      ),
+      // Drawer à droite (endDrawer) 
+      endDrawer: Drawer(
+        backgroundColor: const Color.fromARGB(255, 16, 16, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              color: const Color.fromARGB(255, 16, 16, 16),
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  widget.userData['avatar'] != null
+                      ? Image.asset(
+                          widget.userData['avatar'],
+                          fit: BoxFit.contain,
+                          width: 240,  
+                          height: 240,
+                        )
+                      : Icon(
+                          Icons.person,
+                          size: 40,
+                          color: Colors.white,
+                        ),
+                ],
+              ),
             ),
-            IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () {
-              // Log out logic
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-          ),
+            Divider(color: Colors.grey[700]),
+            Expanded(
+              child: ListView(
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.person, color: Colors.white),
+                    title: Text('Mon Profil', style: TextStyle(color: Colors.white)),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserProfilePage(userData: widget.userData),
+                        ),
+                      );
+                    },
+                  ),
+                  Divider(color: Colors.grey[700]),
+                  ListTile(
+                    leading: Icon(Icons.settings, color: Colors.white),
+                    title: Text('Paramètres', style: TextStyle(color: Colors.white)),
+                    onTap: () {},
+                  ),
+                  Divider(color: Colors.grey[700]),
+                  ListTile(
+                    leading: Icon(Icons.logout, color: Colors.red),
+                    title: Text('Se Déconnecter', style: TextStyle(color: Colors.red)),
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -202,23 +286,34 @@ class UserProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 16, 16, 16),
       appBar: AppBar(
-        title: Text('Profil utilisateur'),
+        title: Text('Profil de ${userData['pseudo']}'),
+        backgroundColor: const Color.fromARGB(255, 16, 16, 16),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Email: ${userData['email']}'),
-            Text('Pseudo: ${userData['pseudo']}'),
-            Text('Rôle: ${userData['role'].join(', ')}'),
-            Text('Sexe: ${userData['sexe']}'),
-            SizedBox(height: 16),
-            userData['avatar'] != null
-                ? Image.network(userData['avatar'])
-                : SizedBox(height: 100, child: Center(child: Text('Aucun avatar'))),
-          ],
+      body: Center(
+        child: Text(
+          'Détails du profil',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
+
+class AddPostPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 16, 16, 16),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 16, 16, 16),
+        title: Text('Ajouter un Post'),
+      ),
+      body: Center(
+        child: Text(
+          'Page pour ajouter un post',
+          style: TextStyle(color: Colors.white),
         ),
       ),
     );
