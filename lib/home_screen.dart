@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/addPost.dart';
+import 'package:frontend/recherche.dart';
 import 'package:frontend/user_profile.dart';
 
 void main() {
@@ -45,7 +46,7 @@ class _HomePageState extends State<HomePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => UserProfilePage(userData: widget.userData),
+            builder: (context) => UserProfilePage(userData: widget.userData,),
           ),
         );
       } else {
@@ -85,9 +86,12 @@ class _HomePageState extends State<HomePage> {
         actions: [
              GestureDetector(
               onTap: () {
-                // Action à définir pour la loupe (recherche)
-                print("Recherche...");
-              },
+      // Naviguer vers la page de recherche
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SearchUserScreen()),
+      );
+    },
               child: Icon(
                 Icons.search, // Icône de recherche
                 color: Colors.white,

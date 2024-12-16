@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/home_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -15,6 +17,53 @@ class _LoginScreenState extends State<LoginScreen> {
   String token = '';
   bool _isLoading = false;
 
+   @override
+  void initState() {
+    super.initState();
+    _loadToken();
+  }
+
+  // Chargement du token enregistré
+  Future<void> _loadToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString('token') ?? '';
+    });
+  }
+
+  // Sauvegarder le token dans SharedPreferences
+  Future<void> saveToken(String newToken) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('token', newToken);
+  }
+
+  // Rafraîchir le token en utilisant le refresh token
+  Future<String> refreshToken() async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.149.50:3000/refresh-token'), // URL à ajuster
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'refreshToken': token}), // Envoyez le refresh token ici
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['accessToken']; // Ajustez selon votre API
+      } else {
+        setState(() {
+          errorMessage = 'Impossible de renouveler le token';
+        });
+        return '';
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Erreur lors du rafraîchissement du token';
+      });
+      return '';
+    }
+  }
+
+  // Fonction de connexion
   Future<void> login() async {
     final String email = _emailController.text;
     final String password = _passwordController.text;
@@ -24,7 +73,6 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      // Requête pour se connecter
       final response = await http.post(
         Uri.parse('http://192.168.149.50:3000/login'),
         headers: {'Content-Type': 'application/json'},
@@ -36,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           token = data['token'];
         });
-        // Récupérer les données utilisateur
+        await saveToken(token); // Sauvegarder le token dans SharedPreferences
         await fetchUserData();
       } else {
         setState(() {
@@ -54,51 +102,57 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // Fonction pour récupérer les données utilisateur
   Future<void> fetchUserData() async {
-  try {
-    final response = await http.get(
-      Uri.parse('http://192.168.149.50:3000/auth/me'),
-      headers: {'Authorization': 'Bearer $token'},
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('http://192.168.149.50:3000/auth/me'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
 
-    if (response.statusCode == 200) {
-      final userData = json.decode(response.body);
-      print(userData); // Vérifier la structure des données utilisateur
-
-      if (userData['role'] != null) {
-        final String userRole = userData['role'];  // Assurez-vous que la clé du rôle est bien correcte
-
-        if (userRole == 'admin') {
-          Navigator.pushReplacementNamed(context, '/admin');
-        } else if (userRole == 'user') {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomePage(userData: userData),
-            ),
-          );
+      if (response.statusCode == 401) {
+        final newToken = await refreshToken();
+        if (newToken.isNotEmpty) {
+          setState(() {
+            token = newToken;
+          });
+          await saveToken(token); // Sauvegarder le nouveau token
+          await fetchUserData(); // Réessayer de récupérer les données
+        }
+      } else if (response.statusCode == 200) {
+        final userData = json.decode(response.body);
+        if (userData['role'] != null) {
+          final String userRole = userData['role'];
+          if (userRole == 'admin') {
+            Navigator.pushReplacementNamed(context, '/admin');
+          } else if (userRole == 'user') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePage(userData: userData),
+              ),
+            );
+          } else {
+            setState(() {
+              errorMessage = 'Rôle utilisateur inconnu.';
+            });
+          }
         } else {
           setState(() {
-            errorMessage = 'Rôle utilisateur inconnu.';
+            errorMessage = 'Rôle utilisateur introuvable.';
           });
         }
       } else {
         setState(() {
-          errorMessage = 'Rôle utilisateur introuvable.';
+          errorMessage = 'Impossible de récupérer les informations utilisateur.';
         });
       }
-    } else {
+    } catch (e) {
       setState(() {
-        errorMessage = 'Impossible de récupérer les informations utilisateur.';
+        errorMessage = 'Erreur lors de la récupération des données utilisateur.';
       });
     }
-  } catch (e) {
-    setState(() {
-      errorMessage = 'Erreur lors de la récupération des données utilisateur.';
-    });
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
