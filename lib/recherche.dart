@@ -12,7 +12,6 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
   final TextEditingController _pseudoController = TextEditingController();
   List<dynamic> users = []; // Liste des utilisateurs trouvés
   String? errorMessage;
-
   // Liste statique pour les tendances
   final List<Map<String, String>> trends = [
     {
@@ -42,9 +41,40 @@ class _SearchUserScreenState extends State<SearchUserScreen> {
     },
   ];
 
+  Future<void> sendSubscriptionNotification(String targetUserId, String currentUserPseudo) async {
+  final url = Uri.parse('http://192.168.149.50:3000/notifications/subscribe');
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'targetUserId': targetUserId,
+        'currentUserPseudo': currentUserPseudo,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Notification envoyée avec succès
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Notification envoyée à l\'utilisateur.')),
+      );
+    } else {
+      // Gestion des erreurs
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de l\'envoi de la notification.')),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Erreur : $e')),
+    );
+  }
+}
+
+
   // Fonction pour rechercher des utilisateurs
   Future<void> searchUser(String pseudo) async {
-    final url = Uri.parse('http://192.168.149.50:3000/users/search?pseudo=$pseudo');
+    final url = Uri.parse('http://192.168.14.50:3000/users/search?pseudo=$pseudo');
 
     try {
       final response = await http.get(url);
@@ -334,17 +364,36 @@ class UserDetailsScreen extends StatelessWidget {
                 ),
                  // Boutons pour "Ajouter en ami" et "Envoyer un message"
                 Row(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: Text('Ajouter en ami'),
-                    ),
+  children: [
+    ElevatedButton(
+      onPressed: () {},
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.transparent, // Fond transparent
+        elevation: 0, // Supprime l'ombre
+        side: BorderSide(color: Colors.white, width: 2), // Contour blanc
+      ),
+      child: Text(
+        'S\'abonner',
+        style: TextStyle(color: Colors.white), // Texte en blanc
+      ),
+    ),
+  
+
                     SizedBox(width: 8),
                     ElevatedButton(
-                      onPressed: () {},
-                      child: Text('Message'),
-                    ),
-                  ],
+  onPressed: () {},
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.transparent, // Fond transparent
+    elevation: 0, // Supprime l'ombre
+    side: BorderSide(color: Colors.white, width: 2), // Contour blanc
+  ),
+  child: Icon(
+    Icons.message, // Icône de message
+    color: Colors.white, // Couleur de l'icône en blanc
+  ),
+),
+
+                  ], 
                 ),
               
 

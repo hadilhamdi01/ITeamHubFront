@@ -33,7 +33,7 @@ class _SelectCommunityPageState extends State<SelectCommunityPage> {
   Future<void> _fetchCommunities() async {
     try {
       final response =
-          await http.get(Uri.parse('http://192.168.149.50:3000/api/communities'));
+          await http.get(Uri.parse('http://192.168.14.50:3000/api/communities'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);

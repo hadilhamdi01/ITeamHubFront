@@ -25,38 +25,30 @@ class _AvatarScreenState extends State<AvatarScreen> {
 
   // Méthode pour enregistrer
   void _register(Map<String, dynamic> args) async {
-    Navigator.pushReplacementNamed(context, '/login');
-
-    if (_selectedAvatar == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Veuillez sélectionner un avatar.')));
-      return;
-
-      
-   
-  
-    }
-
-  
-
-
-    bool success = await _authService.registerUser(
-      args['email'],
-      args['password'],
-      args['pseudo'],
-      args['sexe'],
-      _selectedAvatar!,
-      args['centresInteret'],
-    );
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Inscription réussie !')));
-      Navigator.popUntil(context, ModalRoute.withName('/'));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors de l\'inscription')));
-    }
+  if (_selectedAvatar == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Veuillez sélectionner un avatar.')));
+    return;
   }
+
+  bool success = await _authService.registerUser(
+    args['email'],
+    args['password'],
+    args['pseudo'],
+    args['sexe'],
+    _selectedAvatar!,
+    args['centresInteret'],
+  );
+
+  if (success) {
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Inscription réussie !')));
+    Navigator.pushReplacementNamed(context, '/login'); // Déplacé ici
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de l\'inscription')));
+  }
+}
 
   // Méthodes pour changer les pages
   void _previousPage() {

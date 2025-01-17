@@ -57,7 +57,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
 
     try {
       final response = await http.put(
-        Uri.parse('http://192.168.149.50:3000/update-profile'),
+        Uri.parse('http://192.168.14.50:3000/update-profile'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',  // Ajout de l'en-tête Authorization

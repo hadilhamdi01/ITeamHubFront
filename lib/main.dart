@@ -45,6 +45,7 @@ class MyApp extends StatelessWidget {
         '/admin': (context) => AdminScreen(),
         '/password-reset': (context) => ResetPasswordPage(), 
         '/pseudo': (context) => PseudoScreen(), 
+        //'/param': (context) => ParamScreen(),
         //'/profile': (context) => UserProfilePage(userData: userData), 
         '/centres_interets':(context) => CentresInteretsScreen(), 
         '/select':(context) => SelectCommunityPage(content: 'required String content, XFile? mediaFile',), 

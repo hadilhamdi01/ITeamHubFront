@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/addPost.dart';
+import 'package:frontend/param.dart';
 import 'package:frontend/recherche.dart';
 import 'package:frontend/user_profile.dart';
 
@@ -322,7 +323,14 @@ const SizedBox(height: 28),
                   ListTile(
                     leading: Icon(Icons.settings, color: Colors.white),
                     title: Text('Paramètres', style: TextStyle(color: Colors.white)),
-                    onTap: () {},
+                    onTap: () {
+                   Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SettingsPage(userData: widget.userData),
+                        ),
+                      );
+                    },
                   ),
                   //Divider(color: Colors.grey[700]),
                   ListTile(

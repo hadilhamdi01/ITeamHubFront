@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
- static const String apiUrl = 'http://192.168.149.50:3000';
+ static const String apiUrl = 'http://192.168.14.50:3000';
  static const String _meUrl = '$apiUrl/auth/me';
  final _storage = FlutterSecureStorage();
 
@@ -16,8 +16,8 @@ Future<bool> registerUser(
   String pseudo,
   String sexe,
   String avatar,
-  List<String> centresInteretIds,
-) async {
+  List<String> centresInteretIds,) async {
+
   final url = Uri.parse('$apiUrl/register');
   final response = await http.post(
     url,
@@ -32,7 +32,6 @@ Future<bool> registerUser(
     }),
   );
 
-  // Affiche la réponse de l'API pour le debug
   print('Réponse de l\'API : ${response.body}');
 
   if (response.statusCode == 201) {
@@ -60,7 +59,7 @@ Future<List<dynamic>> fetchCentresInteret() async {
       print('Erreur lors de la récupération des centres d\'intérêt: ${response.body}');
       return [];
     }
-  } catch (error) {
+  } catch (error) {   
     print('Erreur réseau : $error');
     return [];
   }

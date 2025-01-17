@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<String> refreshToken() async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.149.50:3000/refresh-token'), // URL à ajuster
+        Uri.parse('http://192.168.14.50:3000/refresh-token'), // URL à ajuster
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'refreshToken': token}), // Envoyez le refresh token ici
       );
@@ -74,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.149.50:3000/login'),
+        Uri.parse('http://192.168.14.50:3000/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'email': email, 'password': password}),
       );
@@ -106,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> fetchUserData() async {
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.149.50:3000/auth/me'),
+        Uri.parse('http://192.168.14.50:3000/auth/me'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
