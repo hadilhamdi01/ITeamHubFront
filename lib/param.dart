@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/avatarEdit.dart';
 import 'package:frontend/editPassword.dart';
+import 'package:frontend/auth_service.dart';
+import 'package:frontend/login_screen.dart';
 
 class SettingsPage extends StatelessWidget {
   SettingsPage({Key? key, required this.userData}) : super(key: key);
@@ -28,14 +31,27 @@ class SettingsPage extends StatelessWidget {
               style: const TextStyle(color: Color.fromARGB(255, 254, 252, 252)),
             ),
             trailing: const Icon(Icons.arrow_forward),
-            onTap: () {
-              Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EditPass(userData:userData, authToken: '',),
-                        ),
-                      );
-            },
+           onTap: () async {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => EditPass(
+        userData: userData,
+        onLogout: () async {
+          // Nettoyer les données de session
+          final authService = AuthService();
+          await authService.clearToken();
+          
+          // Rediriger vers la page de connexion
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+            (route) => false,
+          );
+        },
+      ),
+    ),
+  );
+},
           ),
           const Divider(),
 
@@ -57,7 +73,12 @@ class SettingsPage extends StatelessWidget {
             leading: const Icon(Icons.person_outline),
             title: const Text("Personnaliser l'avatar", style: TextStyle(color: titleColor)),
             trailing: const Icon(Icons.arrow_forward),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CustomizeAvatarScreen()),
+    );
+            },
           ),
           const Divider(),
 

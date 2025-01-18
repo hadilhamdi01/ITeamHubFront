@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditPass extends StatefulWidget {
-  const EditPass({Key? key, required this.userData, required this.authToken}) : super(key: key);
+  const EditPass({Key? key, required this.userData, required this.onLogout}) : super(key: key);
 
   final Map<String, dynamic> userData;
-  final String authToken;
+  final VoidCallback onLogout;
 
   @override
   _EditPassState createState() => _EditPassState();
@@ -16,18 +17,38 @@ class _EditPassState extends State<EditPass> {
   final _oldPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-
   bool _isLoading = false;
   String? _errorMessage;
+  String? _successMessage;
+  bool _obscureOldPassword = true;
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
+
+  Future<String> getTokenFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token') ?? '';
+  }
 
   Future<void> _updatePassword() async {
-    final oldPassword = _oldPasswordController.text;
-    final newPassword = _newPasswordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-
-    if (newPassword != confirmPassword) {
+    if (_oldPasswordController.text.isEmpty ||
+        _newPasswordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty) {
       setState(() {
-        _errorMessage = 'Les mots de passe ne correspondent pas.';
+        _errorMessage = 'Veuillez remplir tous les champs.';
+      });
+      return;
+    }
+
+    if (_newPasswordController.text.length < 6) {
+      setState(() {
+        _errorMessage = 'Le nouveau mot de passe doit contenir au moins 6 caractères.';
+      });
+      return;
+    }
+
+    if (_newPasswordController.text != _confirmPasswordController.text) {
+      setState(() {
+        _errorMessage = 'Les nouveaux mots de passe ne correspondent pas.';
       });
       return;
     }
@@ -35,34 +56,57 @@ class _EditPassState extends State<EditPass> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _successMessage = null;
     });
 
     try {
+      String token = await getTokenFromStorage();
+
+      if (token.isEmpty) {
+        setState(() {
+          _errorMessage = 'Token introuvable. Veuillez vous reconnecter.';
+          _isLoading = false;
+        });
+        widget.onLogout();
+        return;
+      }
+
       final response = await http.put(
         Uri.parse('http://192.168.14.50:3000/update-password'),
         headers: {
-          'Authorization': 'Bearer ${widget.authToken}',
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          'oldPassword': oldPassword,
-          'newPassword': newPassword,
+          'oldPassword': _oldPasswordController.text,
+          'newPassword': _newPasswordController.text,
         }),
       );
 
       if (response.statusCode == 200) {
         setState(() {
-          _errorMessage = 'Mot de passe modifié avec succès.';
+          _successMessage = 'Mot de passe modifié avec succès.';
+          _oldPasswordController.clear();
+          _newPasswordController.clear();
+          _confirmPasswordController.clear();
         });
-      } else {
-        final data = jsonDecode(response.body);
+        Future.delayed(const Duration(seconds: 2), () {
+          Navigator.pop(context);
+        });
+      } else if (response.statusCode == 403) {
         setState(() {
-          _errorMessage = data['message'] ?? 'Erreur lors de la modification.';
+          _errorMessage = 'Session expirée. Veuillez vous reconnecter.';
+        });
+        widget.onLogout();
+      } else {
+        final data = json.decode(response.body);
+        setState(() {
+          _errorMessage = data['message'] ?? 'Une erreur s\'est produite.';
         });
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+        _errorMessage = 'Erreur de connexion au serveur.';
       });
     } finally {
       setState(() {
@@ -79,12 +123,14 @@ class _EditPassState extends State<EditPass> {
         backgroundColor: const Color.fromARGB(255, 16, 16, 16),
         title: const Text(
           "Changer le mot de passe",
-          style: TextStyle(
-            color: Color.fromARGB(255, 254, 252, 252),
-          ),
+          style: TextStyle(color: Colors.white),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,7 +142,7 @@ class _EditPassState extends State<EditPass> {
                   backgroundColor: Colors.blue,
                   backgroundImage: AssetImage(widget.userData['avatar'] ?? ''),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 30),
                 Text(
                   "u/${widget.userData['pseudo'] ?? 'Utilisateur'}",
                   style: const TextStyle(
@@ -108,94 +154,105 @@ class _EditPassState extends State<EditPass> {
               ],
             ),
             const SizedBox(height: 30),
+            ..._buildPasswordFields(),
             if (_errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Text(
-                  _errorMessage!,
-                  style: const TextStyle(color: Colors.red),
-                ),
+              Text(
+                _errorMessage!,
+                style: const TextStyle(color: Colors.red),
               ),
-            TextField(
-              controller: _oldPasswordController,
-              style: const TextStyle(color: Colors.white),
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Mot de passe actuel',
-                labelStyle: TextStyle(color: Colors.grey),
-                suffixIcon: Icon(Icons.visibility, color: Colors.grey),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue),
-                ),
+            if (_successMessage != null)
+              Text(
+                _successMessage!,
+                style: const TextStyle(color: Colors.green),
               ),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _newPasswordController,
-              style: const TextStyle(color: Colors.white),
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Nouveau mot de passe',
-                labelStyle: TextStyle(color: Colors.grey),
-                suffixIcon: Icon(Icons.visibility, color: Colors.grey),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _confirmPasswordController,
-              style: const TextStyle(color: Colors.white),
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Confirmer le nouveau mot de passe',
-                labelStyle: TextStyle(color: Colors.grey),
-                suffixIcon: Icon(Icons.visibility, color: Colors.grey),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue),
-                ),
-              ),
-            ),
             const SizedBox(height: 50),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text(
-                    'Annuler',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _updatePassword,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(17),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          'Annuler',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: _updatePassword,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(17),
+                          ),
+                        ),
+                        child: const Text(
                           'Enregistrer',
                           style: TextStyle(color: Colors.white),
                         ),
-                ),
-              ],
-            ),
+                      ),
+                    ],
+                  ),
           ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildPasswordFields() {
+    return [
+      _buildPasswordField('Mot de passe actuel', _oldPasswordController, _obscureOldPassword, () {
+        setState(() {
+          _obscureOldPassword = !_obscureOldPassword;
+        });
+      }),
+      const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+Navigator.pushNamed(context, '/password-reset');              },
+              child: const Text(
+                'Mot de passe oublié ?',
+                style: TextStyle(color: Colors.blue),
+              ),
+            ),
+      const SizedBox(height: 20),
+      _buildPasswordField('Nouveau mot de passe', _newPasswordController, _obscureNewPassword, () {
+        setState(() {
+          _obscureNewPassword = !_obscureNewPassword;
+        });
+      }),
+      
+      const SizedBox(height: 20),
+      _buildPasswordField('Confirmer le nouveau mot de passe', _confirmPasswordController, _obscureConfirmPassword, () {
+        setState(() {
+          _obscureConfirmPassword = !_obscureConfirmPassword;
+        });
+      }),
+    ];
+  }
+
+  Widget _buildPasswordField(String label, TextEditingController controller, bool obscureText, VoidCallback toggleVisibility) {
+    return TextField(
+      controller: controller,
+      style: const TextStyle(color: Colors.white),
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.grey),
+        suffixIcon: IconButton(
+          icon: Icon(
+            obscureText ? Icons.visibility_off : Icons.visibility,
+            color: Colors.grey,
+          ),
+          onPressed: toggleVisibility,
+        ),
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey),
+        ),
+        focusedBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue),
         ),
       ),
     );
